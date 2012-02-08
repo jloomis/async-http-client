@@ -182,9 +182,16 @@ public class AsyncHttpProviderUtils {
     }
 
     public final static String contentToString(Collection<HttpResponseBodyPart> bodyParts, String charset) throws UnsupportedEncodingException {
+        return contentToString(bodyParts, charset, -1);
+    }
+
+    public final static String contentToString(Collection<HttpResponseBodyPart> bodyParts, String charset, int maxLength) throws UnsupportedEncodingException {
         StringBuilder b = new StringBuilder();
         for (HttpResponseBodyPart bp : bodyParts) {
             b.append(new String(bp.getBodyPartBytes(), charset));
+            if(maxLength > 0 && b.length() >= maxLength){
+                return b.substring(0, maxLength);
+            }
         }
         return b.toString();
     }

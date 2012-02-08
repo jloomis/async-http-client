@@ -125,8 +125,7 @@ public class NettyResponse implements Response {
             charset = DEFAULT_CHARSET;
         }
 
-        String response = AsyncHttpProviderUtils.contentToString(bodyParts, charset);
-        return response.length() <= maxLength ? response : response.substring(0, maxLength);
+        return AsyncHttpProviderUtils.contentToString(bodyParts, charset, maxLength);
     }
 
     /* @Override */
