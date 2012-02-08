@@ -34,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@link com.ning.http.client.AsyncHttpProvider} common utilities.
@@ -435,13 +437,15 @@ public class AsyncHttpProviderUtils {
         return b.toString();
     }
 
+    private static final String CHARSET_LABEL = "charset=";
+    private static final Pattern CHARSET = Pattern.compile("[\\s'\"]*([^\\s'\";]+)");
     public static String parseCharset(String contentType) {
-        for (String part : contentType.split(";")) {
-            if (part.trim().startsWith("charset=")) {
-                String[] val = part.split("=");
-                if (val.length > 1) {
-                    return val[1].trim();
-                }
+        int start = contentType.toLowerCase().indexOf(CHARSET_LABEL);
+        if(start>0){
+            start+=CHARSET_LABEL.length();
+            Matcher m = CHARSET.matcher(contentType.substring(start));
+            if(m.find()){
+                return m.group(1);
             }
         }
         return null;
