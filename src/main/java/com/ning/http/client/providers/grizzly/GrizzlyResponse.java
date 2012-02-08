@@ -127,23 +127,33 @@ public class GrizzlyResponse implements Response {
      * {@inheritDoc}
      */
     public String getResponseBodyExcerpt(int maxLength, String charset) throws IOException {
-
-        final int len = Math.min(responseBody.remaining(), maxLength);
-        final int pos = responseBody.position();
-        return responseBody.toStringContent(getCharset(charset), pos, len + pos);
-
+        return getResponseBodyExcerpt(maxLength, charset, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public String getResponseBodyExcerpt(int maxLength, String charset, boolean overrideHeader) throws IOException {
+        final int len = Math.min(responseBody.remaining(), maxLength);
+        final int pos = responseBody.position();
+        return responseBody.toStringContent(getCharset(charset, overrideHeader), pos, len + pos);
+    }
 
     /**
      * {@inheritDoc}
      */
     public String getResponseBody(String charset) throws IOException {
 
-        return responseBody.toStringContent(getCharset(charset));
+        return getResponseBody(charset, true);
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public String getResponseBody(String charset, boolean overrideHeader) throws IOException {
+        return responseBody.toStringContent(getCharset(charset, overrideHeader));
+    }
 
     /**
      * {@inheritDoc}
@@ -308,14 +318,16 @@ public class GrizzlyResponse implements Response {
     }
 
 
-    private Charset getCharset(final String charset) {
+    private Charset getCharset(final String charset, boolean overrideHeader) {
 
         String charsetLocal = charset;
 
-        if (charsetLocal == null) {
+        if (charsetLocal == null || !overrideHeader) {
             String contentType = getContentType();
             if (contentType != null) {
                 charsetLocal = AsyncHttpProviderUtils.parseCharset(contentType);
+                if(charsetLocal == null)
+                    charsetLocal = charset;
             }
         }
 

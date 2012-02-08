@@ -82,16 +82,11 @@ public class NettyResponse implements Response {
     }
 
     public String getResponseBody(String charset) throws IOException {
-        String contentType = getContentType();
-        if (contentType != null && charset == null) {
-            charset = AsyncHttpProviderUtils.parseCharset(contentType);
-        }
+        return getResponseBody(charset, true);
+    }
 
-        if (charset == null) {
-            charset = DEFAULT_CHARSET;
-        }
-
-        return AsyncHttpProviderUtils.contentToString(bodyParts, charset);
+    public String getResponseBody(String charset, boolean overrideHeader) throws IOException {
+        return AsyncHttpProviderUtils.contentToString(bodyParts, getCharset(charset, overrideHeader));
     }
 
     /* @Override */
@@ -116,16 +111,22 @@ public class NettyResponse implements Response {
     }
 
     public String getResponseBodyExcerpt(int maxLength, String charset) throws IOException {
+        return getResponseBodyExcerpt(maxLength, charset, true);
+    }
+
+    public String getResponseBodyExcerpt(int maxLength, String charset, boolean overrideHeader) throws IOException {
+        return AsyncHttpProviderUtils.contentToString(bodyParts, getCharset(charset, overrideHeader), maxLength);
+    }
+
+    private String getCharset(String charset, boolean overrideHeader){
         String contentType = getContentType();
-        if (contentType != null && charset == null) {
-            charset = AsyncHttpProviderUtils.parseCharset(contentType);
+        if (contentType != null && (charset == null || !overrideHeader)) {
+            String headerCharset = AsyncHttpProviderUtils.parseCharset(contentType);
+            if(headerCharset != null)
+                return headerCharset;
         }
 
-        if (charset == null) {
-            charset = DEFAULT_CHARSET;
-        }
-
-        return AsyncHttpProviderUtils.contentToString(bodyParts, charset, maxLength);
+        return charset == null? DEFAULT_CHARSET : charset;
     }
 
     /* @Override */
