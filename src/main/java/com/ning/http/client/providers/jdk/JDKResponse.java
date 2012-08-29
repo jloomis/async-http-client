@@ -80,17 +80,20 @@ public class JDKResponse implements Response {
     }
 
     public String getResponseBody(String charset) throws IOException {
-        return getResponseBody(charset, true);
-    }
+        String contentType = getContentType();
+        if (contentType != null && charset == null) {
+            charset = AsyncHttpProviderUtils.parseCharset(contentType);
+        }
 
-    /* @Override */
-    public String getResponseBody(String charset, boolean overrideHeader) throws IOException {
+        if (charset == null) {
+            charset = DEFAULT_CHARSET;
+        }
+
         if (!contentComputed.get()) {
-            content = AsyncHttpProviderUtils.contentToString(bodyParts, getCharset(charset, overrideHeader));
+            content = AsyncHttpProviderUtils.contentToString(bodyParts, charset);
         }
         return content;
     }
-
 
     /* @Override */
     public InputStream getResponseBodyAsStream() throws IOException {
@@ -156,27 +159,20 @@ public class JDKResponse implements Response {
     }
 
     public String getResponseBodyExcerpt(int maxLength, String charset) throws IOException {
-        return getResponseBodyExcerpt(maxLength, charset, true);
-    }
+        String contentType = getContentType();
+        if (contentType != null && charset == null) {
+            charset = AsyncHttpProviderUtils.parseCharset(contentType);
+        }
 
-    /* @Override */
-    public String getResponseBodyExcerpt(int maxLength, String charset, boolean overrideHeader) throws IOException {
+        if (charset == null) {
+            charset = DEFAULT_CHARSET;
+        }
+
         if (!contentComputed.get()) {
-            content = AsyncHttpProviderUtils.contentToString(bodyParts, getCharset(charset, overrideHeader));
+            content = AsyncHttpProviderUtils.contentToString(bodyParts, charset == null ? DEFAULT_CHARSET : charset);
         }
 
         return content.length() <= maxLength ? content : content.substring(0, maxLength);
-    }
-
-    private String getCharset(String charset, boolean overrideHeader){
-        String contentType = getContentType();
-        if (contentType != null && (charset == null || !overrideHeader)) {
-            String headerCharset = AsyncHttpProviderUtils.parseCharset(contentType);
-            if(headerCharset != null)
-                return headerCharset;
-        }
-
-        return charset == null? DEFAULT_CHARSET : charset;
     }
 
     /* @Override */

@@ -61,21 +61,12 @@ public class WebDavResponse implements Response {
         return response.getResponseBodyExcerpt(maxLength, charset);
     }
 
-    public String getResponseBodyExcerpt(int maxLength, String charset, boolean overrideHeader) throws IOException {
-        return response.getResponseBodyExcerpt(maxLength, charset, overrideHeader);
-    }
-
     public String getResponseBody() throws IOException {
         return response.getResponseBody();
     }
 
     public String getResponseBody(String charset) throws IOException {
         return response.getResponseBody(charset);
-    }
-
-    @Override
-    public String getResponseBody(String charset, boolean overrideHeader) throws IOException {
-        return response.getResponseBody(charset, overrideHeader);
     }
 
     public URI getUri() throws MalformedURLException {
